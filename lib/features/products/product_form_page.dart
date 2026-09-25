@@ -7,6 +7,7 @@ import '../../models/category_model.dart';
 import '../../models/product_request.dart';
 import '../../models/unit_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../models/product_model.dart';
 
 import '../../blocs/product_form/product_form_bloc.dart';
 import '../../blocs/product_form/product_form_event.dart';
@@ -19,12 +20,14 @@ class ProductFormPage extends StatefulWidget {
   final CategoryModel? initialCategory;
   final BrandModel? initialBrand;
   final UnitModel? initialUnit;
+  final ProductModel? product;
 
   const ProductFormPage({
     super.key,
     this.initialCategory,
     this.initialBrand,
     this.initialUnit,
+    this.product,
   });
 
   @override
@@ -49,14 +52,71 @@ class _ProductFormPageState extends State<ProductFormPage> {
 
   bool _hasBatch = false;
   bool _hasExpiry = false;
+  bool get isEditMode => widget.product != null;
+  bool _dropdownsInitialized = false;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+
+  //   _selectedCategory = widget.initialCategory;
+  //   _selectedBrand = widget.initialBrand;
+  //   _selectedUnit = widget.initialUnit;
+  // }
+
+  void _setInitialDropdownValues(ProductFormLoaded state) {
+    if (_dropdownsInitialized) return;
+
+    if (!isEditMode) {
+      _selectedCategory = widget.initialCategory;
+      _selectedBrand = widget.initialBrand;
+      _selectedUnit = widget.initialUnit;
+    } else {
+      final product = widget.product!;
+
+      _selectedCategory = state.categories
+          .where((category) => category.id == product.categoryId)
+          .firstOrNull;
+
+      _selectedBrand = state.brands
+          .where((brand) => brand.id == product.brandId)
+          .firstOrNull;
+
+      _selectedUnit = state.units
+          .where((unit) => unit.id == product.unitId)
+          .firstOrNull;
+    }
+
+    _dropdownsInitialized = true;
+  }
 
   @override
   void initState() {
     super.initState();
 
-    _selectedCategory = widget.initialCategory;
-    _selectedBrand = widget.initialBrand;
-    _selectedUnit = widget.initialUnit;
+    final product = widget.product;
+
+    if (product != null) {
+      _productCodeController.text = product.productCode;
+      _barcodeController.text = product.barcode ?? '';
+      _nameController.text = product.name;
+      _descriptionController.text = product.description ?? '';
+      _purchasePriceController.text = product.purchasePrice.toString();
+      _sellingPriceController.text = product.sellingPrice.toString();
+      _taxPercentController.text = product.taxPercent.toString();
+      _minimumStockController.text = product.minimumStock.toString();
+
+      // _selectedCategory = product.categoryId;
+      // _selectedBrand = product.brandId;
+      // _selectedUnit = product.unitId;
+
+      // _selectedCategory = widget.initialCategory;
+      // _selectedBrand = widget.initialBrand;
+      // _selectedUnit = widget.initialUnit;
+
+      _hasBatch = product.hasBatch;
+      _hasExpiry = product.hasExpiry;
+    }
   }
 
   @override
@@ -129,7 +189,13 @@ class _ProductFormPageState extends State<ProductFormPage> {
 
     final request = _buildRequest();
 
-    context.read<ProductBloc>().add(ProductCreateRequested(request));
+    if (isEditMode) {
+      context.read<ProductBloc>().add(
+        ProductUpdateRequested(id: widget.product!.id, request: request),
+      );
+    } else {
+      context.read<ProductBloc>().add(ProductCreateRequested(request));
+    }
   }
 
   InputDecoration _decoration(String label) {
@@ -461,7 +527,11 @@ class _ProductFormPageState extends State<ProductFormPage> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.save),
-                    label: Text(isSaving ? 'Saving...' : 'Save Product'),
+                    label: Text(
+                      isSaving
+                          ? (isEditMode ? 'Updating...' : 'Saving...')
+                          : (isEditMode ? 'Update Product' : 'Save Product'),
+                    ),
                   );
                 },
               ),
@@ -490,14 +560,18 @@ class _ProductFormPageState extends State<ProductFormPage> {
         builder: (context, state) {
           if (state is ProductFormLoading || state is ProductFormInitial) {
             return Scaffold(
-              appBar: AppBar(title: const Text('Add Product')),
+              appBar: AppBar(
+                title: Text(isEditMode ? 'Edit Product' : 'Add Product'),
+              ),
               body: const Center(child: CircularProgressIndicator()),
             );
           }
 
           if (state is ProductFormError) {
             return Scaffold(
-              appBar: AppBar(title: const Text('Add Product')),
+              appBar: AppBar(
+                title: Text(isEditMode ? 'Edit Product' : 'Add Product'),
+              ),
               body: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -519,8 +593,38 @@ class _ProductFormPageState extends State<ProductFormPage> {
           }
 
           if (state is ProductFormLoaded) {
+            _setInitialDropdownValues(state);
+            if (isEditMode &&
+                _selectedCategory == null &&
+                _selectedBrand == null &&
+                _selectedUnit == null) {
+              final product = widget.product!;
+
+              _selectedCategory = product.categoryId == null
+                  ? null
+                  : state.categories.cast<CategoryModel?>().firstWhere(
+                      (category) => category?.id == product.categoryId,
+                      orElse: () => null,
+                    );
+
+              _selectedBrand = product.brandId == null
+                  ? null
+                  : state.brands.cast<BrandModel?>().firstWhere(
+                      (brand) => brand?.id == product.brandId,
+                      orElse: () => null,
+                    );
+
+              _selectedUnit = product.unitId == null
+                  ? null
+                  : state.units.cast<UnitModel?>().firstWhere(
+                      (unit) => unit?.id == product.unitId,
+                      orElse: () => null,
+                    );
+            }
             return Scaffold(
-              appBar: AppBar(title: const Text('Add Product')),
+              appBar: AppBar(
+                title: Text(isEditMode ? 'Edit Product' : 'Add Product'),
+              ),
               body: SafeArea(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.all(

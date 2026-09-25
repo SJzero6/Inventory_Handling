@@ -301,7 +301,34 @@ class _DesktopProductTable extends StatelessWidget {
                         IconButton(
                           tooltip: 'Edit',
                           onPressed: () {
-                            // Edit will be implemented next.
+                            // print('hi i am here');
+                            final productBloc = context.read<ProductBloc>();
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => MultiBlocProvider(
+                                  providers: [
+                                    BlocProvider.value(value: productBloc),
+                                    BlocProvider(
+                                      create: (_) => ProductFormBloc(
+                                        categoryService: CategoryService(
+                                          ApiClient(),
+                                        ),
+                                        brandService: BrandService(ApiClient()),
+                                        unitService: UnitService(ApiClient()),
+                                        authStorage: AuthStorage(),
+                                      )..add(ProductFormLoadRequested()),
+                                    ),
+                                  ],
+                                  child: ProductFormPage(product: product),
+                                ),
+                              ),
+                            ).then((result) {
+                              if (result == true) {
+                                productBloc.add(ProductLoadRequested());
+                              }
+                            });
                           },
                           icon: const Icon(Icons.edit_outlined, size: 20),
                         ),
@@ -436,9 +463,7 @@ class _MobileProductList extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     OutlinedButton.icon(
-                      onPressed: () {
-                        // Edit will be implemented next.
-                      },
+                      onPressed: () {},
                       icon: const Icon(Icons.edit_outlined, size: 18),
                       label: const Text('Edit'),
                     ),
