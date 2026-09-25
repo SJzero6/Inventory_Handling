@@ -188,7 +188,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                           tooltip: 'Delete',
                           icon: const Icon(Icons.delete),
                           onPressed: () {
-                            // Delete will be implemented next.
+                            _confirmDelete(context, category);
                           },
                         ),
                       ],
@@ -244,6 +244,39 @@ class _CategoriesPageState extends State<CategoriesPage> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
       child: Text(isActive ? 'Active' : 'Inactive'),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, CategoryModel category) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Delete Category'),
+          content: Text(
+            'Are you sure you want to delete '
+            '"${category.name}"?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+
+                context.read<CategoryBloc>().add(
+                  CategoryDeleteRequested(category.id),
+                );
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -16,6 +16,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     on<CategoryRefreshRequested>(_loadCategories);
     on<CategoryCreateRequested>(_createCategory);
     on<CategoryUpdateRequested>(_updateCategory);
+    on<CategoryDeleteRequested>(_deleteCategory);
   }
 
   Future<String> _getToken() async {
@@ -81,6 +82,23 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       );
 
       emit(const CategoryOperationSuccess('Category updated successfully.'));
+
+      add(CategoryLoadRequested());
+    } catch (e) {
+      emit(CategoryError(e.toString().replaceFirst('Exception: ', '')));
+    }
+  }
+
+  Future<void> _deleteCategory(
+    CategoryDeleteRequested event,
+    Emitter<CategoryState> emit,
+  ) async {
+    try {
+      final token = await _getToken();
+
+      await categoryService.deleteCategory(id: event.id, token: token);
+
+      emit(const CategoryOperationSuccess('Category deleted successfully.'));
 
       add(CategoryLoadRequested());
     } catch (e) {

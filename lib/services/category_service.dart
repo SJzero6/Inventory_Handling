@@ -41,4 +41,8 @@ class CategoryService {
       token: token,
     );
   }
+
+  Future<void> deleteCategory({required int id, required String token}) async {
+    await apiClient.delete('/categories/$id', token: token);
+  }
 }
