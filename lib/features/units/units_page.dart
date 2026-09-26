@@ -287,7 +287,7 @@ class _UnitsPageState extends State<UnitsPage> {
   Widget _buildMobileList(List<UnitModel> units) {
     return ListView.separated(
       itemCount: units.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final unit = units[index];
 

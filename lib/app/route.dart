@@ -5,15 +5,19 @@ import 'package:inventory_application/blocs/category/category_bloc.dart';
 import 'package:inventory_application/blocs/category/category_event.dart';
 import 'package:inventory_application/blocs/dashboard/dashboard_event.dart';
 import 'package:inventory_application/blocs/product/product_event.dart';
+import 'package:inventory_application/blocs/supplier/supplier_bloc.dart';
+import 'package:inventory_application/blocs/supplier/supplier_event.dart';
 import 'package:inventory_application/blocs/unit/unit_bloc.dart';
 import 'package:inventory_application/blocs/unit/unit_event.dart';
 import 'package:inventory_application/features/brands/brands_page.dart';
 import 'package:inventory_application/features/categories/categories_page.dart';
 import 'package:inventory_application/features/products/products_page.dart';
+import 'package:inventory_application/features/suppliers/suppliers_page.dart';
 import 'package:inventory_application/features/units/units_page.dart';
 import 'package:inventory_application/services/brand_service.dart';
 import 'package:inventory_application/services/category_service.dart';
 import 'package:inventory_application/services/product_service.dart';
+import 'package:inventory_application/services/supplier_service.dart';
 import 'package:inventory_application/services/unit_service.dart';
 
 import '../features/auth/login_page.dart';
@@ -32,6 +36,7 @@ class AppRoutes {
   static const String categories = '/categories';
   static const String brands = '/brands';
   static const String units = '/units';
+  static const String suppliers = '/suppliers';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -88,6 +93,16 @@ class AppRoutes {
               authStorage: AuthStorage(),
             )..add(UnitLoadRequested()),
             child: const UnitsPage(),
+          ),
+        );
+      case suppliers:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => SupplierBloc(
+              supplierService: SupplierService(ApiClient()),
+              authStorage: AuthStorage(),
+            )..add(SupplierLoadRequested()),
+            child: const SuppliersPage(),
           ),
         );
 

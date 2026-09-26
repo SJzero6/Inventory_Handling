@@ -284,7 +284,7 @@ class _BrandsPageState extends State<BrandsPage> {
   Widget _buildMobileList(List<BrandModel> brands) {
     return ListView.separated(
       itemCount: brands.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final brand = brands[index];
 
