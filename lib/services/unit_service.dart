@@ -16,4 +16,33 @@ class UnitService {
         .where((unit) => unit.isActive)
         .toList();
   }
+
+  Future<void> createUnit({
+    required String name,
+    required String shortName,
+    required String token,
+  }) async {
+    await apiClient.post(
+      '/units/',
+      body: {'name': name, 'shortName': shortName},
+      token: token,
+    );
+  }
+
+  Future<void> updateUnit({
+    required int id,
+    required String name,
+    required String shortName,
+    required String token,
+  }) async {
+    await apiClient.put(
+      '/units/$id',
+      body: {'name': name, 'shortName': shortName},
+      token: token,
+    );
+  }
+
+  Future<void> deleteUnit({required int id, required String token}) async {
+    await apiClient.delete('/units/$id', token: token);
+  }
 }

@@ -7,7 +7,7 @@ class BrandService {
   BrandService(this.apiClient);
 
   Future<List<BrandModel>> getBrands({required String token}) async {
-    final response = await apiClient.get('/brandsapi/', token: token);
+    final response = await apiClient.get('/brands/', token: token);
 
     final List data = response['data'] ?? [];
 
@@ -21,7 +21,7 @@ class BrandService {
     required String name,
     required String token,
   }) async {
-    await apiClient.post('/brandsapi/', body: {'name': name}, token: token);
+    await apiClient.post('/brands/', body: {'name': name}, token: token);
   }
 
   Future<void> updateBrand({
@@ -29,10 +29,10 @@ class BrandService {
     required String name,
     required String token,
   }) async {
-    await apiClient.put('/brandsapi/$id', body: {'name': name}, token: token);
+    await apiClient.put('/brands/$id', body: {'name': name}, token: token);
   }
 
   Future<void> deleteBrand({required int id, required String token}) async {
-    await apiClient.delete('/brandsapi/$id', token: token);
+    await apiClient.delete('/brands/$id', token: token);
   }
 }

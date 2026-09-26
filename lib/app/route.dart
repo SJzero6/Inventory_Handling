@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_application/blocs/brand/brand_bloc.dart';
+import 'package:inventory_application/blocs/brand/brand_event.dart';
 import 'package:inventory_application/blocs/category/category_bloc.dart';
 import 'package:inventory_application/blocs/category/category_event.dart';
 import 'package:inventory_application/blocs/dashboard/dashboard_event.dart';
 import 'package:inventory_application/blocs/product/product_event.dart';
+import 'package:inventory_application/blocs/unit/unit_bloc.dart';
+import 'package:inventory_application/blocs/unit/unit_event.dart';
+import 'package:inventory_application/features/brands/brands_page.dart';
 import 'package:inventory_application/features/categories/categories_page.dart';
 import 'package:inventory_application/features/products/products_page.dart';
+import 'package:inventory_application/features/units/units_page.dart';
+import 'package:inventory_application/services/brand_service.dart';
 import 'package:inventory_application/services/category_service.dart';
 import 'package:inventory_application/services/product_service.dart';
+import 'package:inventory_application/services/unit_service.dart';
 
 import '../features/auth/login_page.dart';
 import '../features/dashboard/dashboard_page.dart';
@@ -22,6 +30,9 @@ class AppRoutes {
   static const String dashboard = '/dashboard';
   static const String products = '/products';
   static const String categories = '/categories';
+  static const String brands = '/brands';
+  static const String units = '/units';
+
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case login:
@@ -55,6 +66,28 @@ class AppRoutes {
               authStorage: AuthStorage(),
             )..add(CategoryLoadRequested()),
             child: const CategoriesPage(),
+          ),
+        );
+
+      case brands:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => BrandBloc(
+              brandService: BrandService(ApiClient()),
+              authStorage: AuthStorage(),
+            )..add(BrandLoadRequested()),
+            child: const BrandsPage(),
+          ),
+        );
+
+      case units:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => UnitBloc(
+              unitService: UnitService(ApiClient()),
+              authStorage: AuthStorage(),
+            )..add(UnitLoadRequested()),
+            child: const UnitsPage(),
           ),
         );
 
